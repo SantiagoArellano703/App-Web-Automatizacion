@@ -13,7 +13,6 @@ const createUser = async (user, email, name, lastname) => {
   console.log('Usuario creado:', newUserRef.key);
 };
 
-
 // Crear una mesa
 const createTable = async (capacity, status) => {
     const tablesRef = ref(db, 'tables');
@@ -90,7 +89,7 @@ async function getAllReservations() {
             }
         } else {
             reject("No hay usuario autenticado.");
-            window.location.href = "./login.html";
+            // window.location.href = "./login.html";
         }
       })
     })

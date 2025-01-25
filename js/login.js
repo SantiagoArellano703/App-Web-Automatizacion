@@ -3,7 +3,7 @@ import { auth } from "./firebaseInit.js";
 import { createUser } from "./app.js";
 import { protectRoute } from "./routes.js";
 
-protectRoute("./dashboard.html", "/login.html");
+protectRoute("login.html", "dashboard.html");
 
 document.getElementById('form-register').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -31,10 +31,7 @@ function registerUser (email, password, name, lastname) {
     .then((userCredential) => {
         // Signed up 
         let user = userCredential.user;
-        return createUser(user, email, name, lastname);
-    })
-    .then(() => {
-        window.location.href = "./dashboard.html";
+        createUser(user, email, name, lastname).then(() => { window.location.href = "./dashboard.html"; })
     })
     .catch((error) => {
         const errorCode = error.code;
@@ -55,4 +52,3 @@ function loginUser (email, password) {
         const errorMessage = error.message;
     });
 }
-

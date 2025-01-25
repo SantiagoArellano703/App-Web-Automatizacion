@@ -3,7 +3,8 @@ import { signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth
 import { createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData } from "./app.js";
 import { protectRoute } from "./routes.js";
 
-protectRoute("/dashboard.html", "./login.html");
+let userData = await protectRoute();
+console.log(userData);
 
 document.getElementById("btn-logout").addEventListener("click", logout);
 
