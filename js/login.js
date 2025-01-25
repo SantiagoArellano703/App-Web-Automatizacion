@@ -1,6 +1,9 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword  } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { auth } from "./firebaseInit.js";
 import { createUser } from "./app.js";
+import { protectRoute } from "./routes.js";
+
+protectRoute("./dashboard.html", "/login.html");
 
 document.getElementById('form-register').addEventListener('submit', function(event) {
     event.preventDefault();
