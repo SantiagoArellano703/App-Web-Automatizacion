@@ -1,5 +1,18 @@
 import { ref, push, set, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
-import { db } from "./firebaseInit.js";
+import { db, auth } from "./firebaseInit.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+// Crear usuario
+const createUser = async (user, email, name, lastname) => {
+  const newUserRef = ref(db, `users/${user.uid}`);
+  await set(newUserRef, {
+      email,
+      name,
+      lastname
+  });
+  console.log('Usuario creado:', newUserRef.key);
+};
+
 
 // Crear una mesa
 const createTable = async (capacity, status) => {
@@ -50,10 +63,6 @@ async function getAllReservations() {
   
       if (snapshot.exists()) {
         const reservations = snapshot.val(); // Aquí tienes todas las reservaciones
-
-        // for (const [id, reservation] of Object.entries(reservations)) {
-        //   console.log(`ID: ${id}, Usuario: ${reservation.userId}, Mesa: ${reservation.tableId}, Fecha: ${reservation.date}, Hora: ${reservation.time}`);
-        // }
         return reservations;
       } else {
         console.log("No hay reservaciones en la base de datos.");
@@ -63,4 +72,29 @@ async function getAllReservations() {
     }
   }
 
-export { createTable, createReservation, getAllReservations, getAllTables };
+  async function getCurrentUserData() {
+    return new Promise((resolve, reject) => {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            let uid = user.uid;
+            let userRef = ref(db, `users/${uid}`);
+            try {
+                let userData = await get(userRef);
+                if (userData.exists()) {
+                    resolve(userData.val()); // Resolver con los datos del usuario
+                } else {
+                    reject("No se encontraron datos para este usuario.");
+                }
+            } catch (error) {
+                reject(error.message);
+            }
+        } else {
+            reject("No hay usuario autenticado.");
+            window.location.href = "./login.html";
+        }
+      })
+    })
+    
+}
+
+export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData };

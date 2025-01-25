@@ -1,6 +1,6 @@
 import { auth } from "./firebaseInit.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-import { createTable, createReservation, getAllReservations, getAllTables } from "./app.js";
+import { createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData } from "./app.js";
 
 document.getElementById("btn-logout").addEventListener("click", logout);
 
@@ -16,6 +16,15 @@ function logout() {
         console.error("Error al cerrar sesión:", error);
     });
 }
+
+async function welcome() {
+    let currentUser = await getCurrentUserData();
+
+    let welcome = document.getElementById("dashboard-welcome");
+    welcome.textContent = `Bienvenido ${currentUser.name}`;
+}
+
+welcome();
 
 // Llama a esta función con los datos correctos
 // createTable(2);
@@ -46,3 +55,4 @@ for (const [id, reservation] of Object.entries(reservations)) {
     newReservationsDiv.textContent = `ID: ${id}, Usuario: ${reservation.userId}, Mesa: ${reservation.tableId}, Fecha: ${reservation.date}, Hora: ${reservation.time}`;
     reservationsDiv.appendChild(newReservationsDiv);
 }
+

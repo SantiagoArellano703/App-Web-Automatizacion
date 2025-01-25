@@ -1,33 +1,37 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword  } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 import { auth } from "./firebaseInit.js";
+import { createUser } from "./app.js";
 
 document.getElementById('form-register').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const email = document.getElementById('email-register').value;
-    const password = document.getElementById('password-register').value;
+    let email = document.getElementById('email-register').value;
+    let password = document.getElementById('password-register').value;
+    let name = document.getElementById('username').value;
+    let lastname = document.getElementById('lastname').value;
 
-    registerUser(email, password);
+    registerUser(email, password, name, lastname)
     
 });
 
 document.getElementById('form-login').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const email = document.getElementById('email-login').value;
-    const password = document.getElementById('password-login').value;
+    let email = document.getElementById('email-login').value;
+    let password = document.getElementById('password-login').value;
 
     loginUser(email, password);
-    
 });
 
-function registerUser (email, password) {
+function registerUser (email, password, name, lastname) {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         // Signed up 
-        const user = userCredential.user;
-        console.log(user.uid);
-        window.location.href = "./dashboard.html"; 
+        let user = userCredential.user;
+        return createUser(user, email, name, lastname);
+    })
+    .then(() => {
+        window.location.href = "./dashboard.html";
     })
     .catch((error) => {
         const errorCode = error.code;
