@@ -14,10 +14,11 @@ const createUser = async (user, email, name, lastname) => {
 };
 
 // Crear una mesa
-const createTable = async (capacity, status) => {
+const createTable = async (nameTable, capacity, status) => {
     const tablesRef = ref(db, 'tables');
     const newTableRef = push(tablesRef);
     await set(newTableRef, {
+        nameTable,
         capacity,
         status: 'avaible',
     });
@@ -41,7 +42,7 @@ async function getAllTables() {
   }
 
 // Crear una reservación
-const createReservation = async (userId, tableId, date, time) => {
+const createReservation = async (userId, tableId, date, startTime, endTime) => {
     const reservationsRef = ref(db, 'reservations');
     const newReservationRef = push(reservationsRef);
     console.log(reservationsRef);
@@ -49,7 +50,8 @@ const createReservation = async (userId, tableId, date, time) => {
         userId,
         tableId,
         date,
-        time,
+        startTime,
+        endTime,
         status: 'pending',
     });
     console.log('Reservación creada:', newReservationRef.key);
@@ -80,7 +82,7 @@ async function getAllReservations() {
             try {
                 let userData = await get(userRef);
                 if (userData.exists()) {
-                    resolve(userData.val()); // Resolver con los datos del usuario
+                    resolve([uid, userData.val()]); // Resolver con los datos del usuario
                 } else {
                     reject("No se encontraron datos para este usuario.");
                 }
@@ -95,5 +97,15 @@ async function getAllReservations() {
     })
     
 }
+
+function validateReservation(tableId, date, time) {
+  if (date == "2025-01-23" && (time >= "21:00" && time <= "23:00") ) {
+    return false;
+  }
+
+  return true;
+}
+
+console.log(validateReservation(2, "2025-02-23", "22:00"));
 
 export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData };

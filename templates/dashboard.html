@@ -18,6 +18,21 @@
         <h3>Reservaciones</h3>
 
     </div>
+
+    <h3>Hacer Reservacion</h3>
+    <form method="post" id="form-reservation">
+        <select id="reservation-table">
+            <!-- <option value="javascript">Mesa 1</option>
+            <option value="php">Mesa 2</option>
+            <option value="java">Mesa 3</option>
+            <option value="golang">Mesa 4</option>
+            <option value="python">Mesa 5</option> -->
+        </select>
+        <input id="reservation-date" type="date" min="" placeholder="Fecha" required>
+        <input id="reservation-startTime" type="time"  min="09:00" max="23:30" step="1800" placeholder="Hora" required>
+        <input id="reservation-endTime" type="time"  min="9:00" max="23:59" step="1800" placeholder="Hora Fin" required>
+        <button>Reservar</button>
+    </form>
     
 
     <button id="btn-logout">Salir</button>
