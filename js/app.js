@@ -52,7 +52,6 @@ const createReservation = async (userId, tableId, date, startTime, endTime) => {
         date,
         startTime,
         endTime,
-        status: 'pending',
     });
     console.log('Reservación creada:', newReservationRef.key);
 };
@@ -71,9 +70,9 @@ async function getAllReservations() {
     } catch (error) {
       console.error("Error al obtener las reservaciones:", error.message);
     }
-  }
+}
 
-  async function getCurrentUserData() {
+async function getCurrentUserData() {
     return new Promise((resolve, reject) => {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -98,14 +97,33 @@ async function getAllReservations() {
     
 }
 
-function validateReservation(tableId, date, time) {
-  if (date == "2025-01-23" && (time >= "21:00" && time <= "23:00") ) {
+function validateReservation(reservations, tableId, date, startTime, endTime) {
+  let now = new Date();
+  let today = now.toISOString().split("T")[0];
+
+  let start = new Date(`${date}T${startTime}`);
+  let end = new Date(`${date}T${endTime}`);
+
+  console.log("Entra");
+  if (date < today || start >= end || start <= now) {
     return false;
   }
 
+  let reservationsForTable = Object.values(reservations).filter(res => res.tableId == tableId);
+
+  for (let reservation of reservationsForTable) {
+    let existingStart = new Date(`${reservation.date}T${reservation.startTime}`);
+    let existingEnd = new Date(`${reservation.date}T${reservation.endTime}`);
+
+    if ((start >= existingStart && start < existingEnd) || (end > existingStart && end <= existingEnd) ||
+        (start <= existingStart && end >= existingEnd)) {
+        
+        return false;
+    }
+  }
+
+  
   return true;
 }
 
-console.log(validateReservation(2, "2025-02-23", "22:00"));
-
-export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData };
+export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation };

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
     <title>App Web</title>
 </head>
 <body>
@@ -19,6 +20,10 @@
 
     </div>
 
+    <div id="calendar" style="width: 650px;">
+        <!-- <h3>Horas ocupadas: </h3> -->
+    </div>
+
     <h3>Hacer Reservacion</h3>
     <form method="post" id="form-reservation">
         <select id="reservation-table">
@@ -28,9 +33,12 @@
             <option value="golang">Mesa 4</option>
             <option value="python">Mesa 5</option> -->
         </select>
-        <input id="reservation-date" type="date" min="" placeholder="Fecha" required>
-        <input id="reservation-startTime" type="time"  min="09:00" max="23:30" step="1800" placeholder="Hora" required>
-        <input id="reservation-endTime" type="time"  min="9:00" max="23:59" step="1800" placeholder="Hora Fin" required>
+        <input id="reservation-date" type="date" min="" default="" placeholder="Fecha" required>
+
+        <select id="reservation-startTime"></select>
+
+        <select id="reservation-endTime"></select>
+
         <button>Reservar</button>
     </form>
     
