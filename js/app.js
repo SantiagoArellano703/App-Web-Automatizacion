@@ -1,14 +1,15 @@
 import { ref, push, set, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { db, auth } from "./firebaseInit.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
 // Crear usuario
-const createUser = async (user, email, name, lastname) => {
+const createUser = async (user, email, name, lastname, rol) => {
   const newUserRef = ref(db, `users/${user.uid}`);
   await set(newUserRef, {
       email,
       name,
-      lastname
+      lastname,
+      rol
   });
   console.log('Usuario creado:', newUserRef.key);
 };
@@ -98,6 +99,8 @@ async function getCurrentUserData() {
 }
 
 function validateReservation(reservations, tableId, date, startTime, endTime) {
+  if (!reservations) return true;
+
   let now = new Date();
   let today = now.toISOString().split("T")[0];
 
@@ -122,8 +125,21 @@ function validateReservation(reservations, tableId, date, startTime, endTime) {
     }
   }
 
-  
   return true;
 }
 
-export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation };
+function logout(auth) {
+  signOut(auth)
+  .then(() => {
+      // La sesión se cerró correctamente
+      console.log("Sesión cerrada exitosamente.");
+      window.location.href = "./index.html"; // Redirigir al login
+  })
+  .catch((error) => {
+      // Manejar errores
+      console.error("Error al cerrar sesión:", error);
+  });
+}
+
+
+export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, logout };
