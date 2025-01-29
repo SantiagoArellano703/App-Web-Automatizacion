@@ -4,12 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App Web</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Krona+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oxygen+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200..900&family=Oxygen+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <!-- styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <h1>Home</h1>
+    <!-- header / navbar -->
+    <header>
+        <nav class="navbar section-content">
+            <a href="#" class="nav-logo">
+                <img src="../img/sushi-hashi.png" alt="Logo" class="nav-logo-icon">
+                <h2 class="logo-text">GOMORI SUSHI</h2>
+            </a>
+            <ul class="nav-menu">
+                <button id="menu-close-button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">HOME</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">MENU</a>
+                </li>
+                <li class="nav-item">
+                    <a href="login.html" class="nav-link">RESERVAR</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">ABOUT</a>
+                </li>   
+            </ul>
+            <button id="menu-open-button">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
 
-    <a href="login.html">Iniciar Sesion</a>
-
+    <main>
+        <!-- Hero section  -->
+         <section class="hero-section">
+            <div class="section-content">
+                <div class="hero-details">
+                    <h2 class="title">Deléitate con el mejor sushi</h2>
+                    <h3 class="subtitle">reservado especialmente para ti</h2>
+                   <!--  <h5 class="description">Sushi perfecto, siempre a tiempo, siempre reservado para ti.</h5> -->
+                    <h4 class="japanese-text">日本の伝統と味</h4>
+                    <div class="buttons">
+                        <!-- <a href ="#" class="button orden-now">Ordena ya</a> -->
+                        <a href="login.html" class="button book-table">Haz tu reserva</a>
+                    </div>
+                </div>
+                <div class="hero-image-wrapper">
+                    <img src="../img/rol-sushi.png" alt="Hero" class="hero-image">
+                </div>
+            </div>
+         </section>
+    </main>
     <script type="module" src="../js/firebaseInit.js"></script>
+    <script>
+        const menuOpenButton = document.querySelector("#menu-open-button");
+        const menuCloseButton = document.querySelector("#menu-close-button");
+    
+        menuOpenButton.addEventListener("click", () => {
+            document.body.classList.toggle("show-mobile-menu");
+        });
+
+        menuCloseButton.addEventListener("click", () => menuOpenButton.click());
+    </script>
 </body>
 </html>
