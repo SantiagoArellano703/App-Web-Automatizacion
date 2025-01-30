@@ -1,5 +1,5 @@
 import { auth } from "./firebaseInit.js";
-import { createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, logout } from "./app.js";
+import { getUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, logout } from "./app.js";
 import { protectRoute } from "./routes.js";
 
 // Rutas
@@ -52,10 +52,22 @@ document.getElementById('form-reservation').addEventListener('submit', function(
     let startTime = document.getElementById('reservation-startTime').value;
     let endTime = document.getElementById('reservation-endTime').value;
 
+    //Orden
+    let addOrder = document.getElementById('reservation-addOrder').checked;
+    let order = [];
+
     let isValid = validateReservation(reservations, table, date, startTime, endTime);
     
     if( isValid ) {
-        createReservation(uid, table, date, startTime, endTime);   
+        if ( addOrder ) {
+            let order1 = document.getElementById('reservation-order1').value;
+            let amount1 = document.getElementById('order-amount1').value;
+            let order2 = document.getElementById('reservation-order2').value;
+            let amount2 = document.getElementById('order-amount2').value;
+            order = [{product: order1, amount: amount1}, {product: order2, amount: amount2}]
+        }
+        
+        createReservation(uid, table, date, startTime, endTime, order);   
         console.log("Reservacion realizada");   
     } else {
         console.log("Ya existe una reservacion para esa fecha.");
@@ -125,6 +137,16 @@ function showUserReservations(reservations) {
                                                 Fecha: ${reservation.date}, Hora: ${reservation.startTime}, Fin: ${reservation.endTime}`;
             reservationsDiv.appendChild(newReservationsDiv);
             newReservationsDiv.classList.add("reservations-child");
+
+            // Order
+            if (reservation.order) {
+                for (let order of reservation.order){
+                    let orderDiv = document.createElement("p");
+                    orderDiv.textContent = `- Producto: ${order.product}, Cantidad: ${order.amount}`;
+                    reservationsDiv.appendChild(orderDiv);
+                    orderDiv.classList.add("reservations-child");
+                }
+            } 
         }
     }
 }
@@ -276,3 +298,5 @@ function createCalendar() {
 // createTable("Mesa 5", 4);
 
 // createReservation('user123', 'table1', '2025-01-16', '19:00');
+// let order = [{product: "Pizza Margarita", amount: 1}, {product: "Coca-Cola", amount: 2}]
+// createReservation('user123', 'table1', '2025-01-31', '19:00', "21:00", order);

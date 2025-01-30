@@ -43,7 +43,7 @@ async function getAllTables() {
   }
 
 // Crear una reservación
-const createReservation = async (userId, tableId, date, startTime, endTime) => {
+const createReservation = async (userId, tableId, date, startTime, endTime, order) => {
     const reservationsRef = ref(db, 'reservations');
     const newReservationRef = push(reservationsRef);
     console.log(reservationsRef);
@@ -53,6 +53,7 @@ const createReservation = async (userId, tableId, date, startTime, endTime) => {
         date,
         startTime,
         endTime,
+        order,
     });
     console.log('Reservación creada:', newReservationRef.key);
 };
@@ -95,7 +96,20 @@ async function getCurrentUserData() {
         }
       })
     })
-    
+}
+
+async function getUser(uid) {
+  return new Promise((resolve, reject) => {
+    let userRef = ref(db, "users/" + uid);
+
+    get(userRef).then((userData) => {
+        if (userData.exists()) {
+            resolve(userData.val());
+        } else {
+          reject("No se encontró el usuario");
+        }
+    });
+  });
 }
 
 function validateReservation(reservations, tableId, date, startTime, endTime) {
@@ -142,4 +156,4 @@ function logout(auth) {
 }
 
 
-export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, logout };
+export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, getUser, validateReservation, logout };
