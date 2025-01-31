@@ -19,6 +19,7 @@ generateTablesOptions();
 let eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
 let isFetching = false; 
 let calendar = createCalendar();
+chargeProducts();
 
 /*-----------------------------------*\
   EVENTOS
@@ -32,12 +33,23 @@ setInterval(async () => {
         reservations = await getAllReservations();
         eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
         updateCalendarEvents(eventsCalendar);
+        showUserReservations(reservations);
     } catch (error) {
         console.error("Error al obtener reservas:", error);
     } finally {
         isFetching = false; // Libera el bloqueo después de completar la ejecución
     }
 }, 5000);
+
+// Abrir el modal
+document.getElementById("openModalBtn").addEventListener("click", function() {
+    document.getElementById("reservationModal").style.display = "block";
+});
+
+// Cerrar el modal
+document.getElementById("closeModalBtn").addEventListener("click", function() {
+    closeModal();
+});
 
 tablesForm.addEventListener("change", function() {
     eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
@@ -46,34 +58,17 @@ tablesForm.addEventListener("change", function() {
 
 document.getElementById('form-reservation').addEventListener('submit', function(event) {
     event.preventDefault();
+    processOrder();
+    closeModal();
+    showUserReservations(reservations);
+});
 
-    let table = document.getElementById('reservation-table').value;
-    let date = document.getElementById('reservation-date').value;
-    let startTime = document.getElementById('reservation-startTime').value;
-    let endTime = document.getElementById('reservation-endTime').value;
+document.getElementById("reservation-addOrder").addEventListener("change", () => {
+    showProducts();
+});
 
-    //Orden
-    let addOrder = document.getElementById('reservation-addOrder').checked;
-    let order = [];
-
-    let isValid = validateReservation(reservations, table, date, startTime, endTime);
-    
-    if( isValid ) {
-        if ( addOrder ) {
-            let order1 = document.getElementById('reservation-order1').value;
-            let amount1 = document.getElementById('order-amount1').value;
-            let order2 = document.getElementById('reservation-order2').value;
-            let amount2 = document.getElementById('order-amount2').value;
-            order = [{product: order1, amount: amount1}, {product: order2, amount: amount2}]
-        }
-        
-        createReservation(uid, table, date, startTime, endTime, order);   
-        console.log("Reservacion realizada");   
-    } else {
-        console.log("Ya existe una reservacion para esa fecha.");
-    }
- 
-    showUserReservations();
+document.querySelectorAll(".quantity-btn").forEach(button => {
+    button.addEventListener("click", () => addProducts(button));
 });
 
 document.getElementById("btn-logout").addEventListener("click", function() { logout(auth); });
@@ -283,13 +278,113 @@ function createCalendar() {
             hour12: true,
             meridiem: "short"
         },
-
+        allDaySlot: false,
         events: eventsCalendar
     });
     calendar.render();
 
     return calendar;
 }
+
+function closeModal() {
+    document.getElementById("reservationModal").style.display = "none";
+    document.getElementById('reservation-addOrder').checked = false;
+    showProducts();
+    resetQuantitys();
+}
+
+function showProducts() {
+    let productList = document.getElementById("productAccordion");
+    let addOrder = document.getElementById("reservation-addOrder");
+    if (addOrder.checked) {
+        productList.style.display = "block"; 
+    } else {
+        productList.style.display = "none";
+    }
+}
+
+function chargeProducts() {
+    let products = [
+        {name: "Yonaguni Roll", price: "7"},
+        {name: "Kanagami Roll", price: "7"},
+        {name: "Fiji Roll", price: "7"},
+        {name: "Asuma Roll", price: "7"},
+        {name: "Kakashi Roll", price: "7"},
+        {name: "Naruto Roll", price: "7"},
+        {name: "Coca-Cola", price: "2"}
+    ];
+
+    let accordion = document.getElementById("productAccordion");
+
+    products.forEach(product => {
+        let item = document.createElement("div");
+        item.classList.add("item-product");
+        item.setAttribute("name", product.name);
+
+        item.innerHTML = `<span class="product-name">${product.name}</span>
+                        <span class="product-price">$${product.price}</span>
+                        <button type="button" class="quantity-btn" data-action="minus">-</button>
+                        <span class="quantity">0</span>
+                        <button type="button" class="quantity-btn" data-action="plus">+</button>`
+
+        accordion.appendChild(item);
+    });
+}
+
+function addProducts(button) {
+    let quantitySpan = button.parentElement.querySelector(".quantity");
+    let quantity = parseInt(quantitySpan.textContent);
+
+    // Controlar la cantidad basada en el botón presionado
+    if (button.dataset.action === "plus") {
+        quantity++;
+    } else if (button.dataset.action === "minus" && quantity > 0) {
+        quantity--;
+    }
+
+    // Actualizar la cantidad
+    quantitySpan.textContent = quantity;
+};
+
+function resetQuantitys() {
+    document.querySelectorAll(".quantity-btn").forEach(button => {
+        let quantitySpan = button.parentElement.querySelector(".quantity");
+        quantitySpan.textContent = 0;
+    });
+};
+
+function processOrder () {
+    let table = document.getElementById('reservation-table').value;
+    let date = document.getElementById('reservation-date').value;
+    let startTime = document.getElementById('reservation-startTime').value;
+    let endTime = document.getElementById('reservation-endTime').value;
+
+    //Orden
+    let addOrder = document.getElementById('reservation-addOrder').checked;
+    let order = [];
+
+    let isValid = validateReservation(reservations, table, date, startTime, endTime);
+    
+    if( isValid ) {
+        if ( addOrder ) {
+            let products = document.getElementsByClassName("item-product");
+
+            for (let i = 0; i < products.length; i++){
+                let quantity = parseInt(products[i].querySelector(".quantity").textContent);
+
+                if (quantity > 0) {
+                    order.push({product: products[i].getAttribute('name'), amount: quantity})
+                }
+            }   
+        }
+
+        createReservation(uid, table, date, startTime, endTime, order);   
+        console.log("Reservacion realizada");   
+    } else {
+        console.log("Ya existe una reservacion para esa fecha.");
+    }
+}
+
 
 // createTable("Mesa 1", 2);
 // createTable("Mesa 2" ,4);

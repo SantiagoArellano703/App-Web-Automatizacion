@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <link rel="stylesheet" href="../css/dashboard.css">
     <title>App Web</title>
 </head>
 <body>
@@ -24,35 +25,44 @@
         <!-- <h3>Horas ocupadas: </h3> -->
     </div>
 
-    <h3>Hacer Reservacion</h3>
-    <form method="post" id="form-reservation">
-        <select id="reservation-table">
-            <!-- <option value="javascript">Mesa 1</option>
-            <option value="php">Mesa 2</option>
-            <option value="java">Mesa 3</option>
-            <option value="golang">Mesa 4</option>
-            <option value="python">Mesa 5</option> -->
-        </select>
-        <input id="reservation-date" type="date" min="" default="" placeholder="Fecha" required>
+    <button id="openModalBtn">Hacer reservación</button>
 
-        <select id="reservation-startTime"></select>
+    <div class="modal" id="reservationModal">
+        <div class="modal-content">
+            <span id="closeModalBtn" class="close-btn" style="cursor: pointer">&times;</span>
 
-        <select id="reservation-endTime"></select>
+            <h3>Hacer Reservacion</h3>
+            <form method="post" id="form-reservation">
+                <select id="reservation-table"></select>
+                <input id="reservation-date" type="date" min="" default="" placeholder="Fecha" required>
 
-        <p>Pedido</p>
-        <label>Añadir Orden?</label>
-        <input type="checkbox" id="reservation-addOrder">
+                <select id="reservation-startTime"></select>
 
-        <blockquote></blockquote>
-        <input type="text" name="order1" id="reservation-order1"  placeholder="Pedido 1">
-        <input type="number" name="amount1" id="order-amount1"  placeholder="Cantidad">
-        <blockquote></blockquote>
-        <input type="text" name="order2" id="reservation-order2"  placeholder="Pedido 2">
-        <input type="number" name="amount2" id="order-amount2" placeholder="Cantidad">
+                <select id="reservation-endTime"></select>
 
-        <blockquote></blockquote>
-        <button>Reservar</button>
-    </form>
+                <p>Pedido</p>
+                <label>Añadir Orden?</label>
+                <input type="checkbox" id="reservation-addOrder">
+
+                <blockquote></blockquote>
+                <!-- <input type="text" name="order1" id="reservation-order1"  placeholder="Pedido 1">
+                <input type="number" name="amount1" id="order-amount1"  placeholder="Cantidad">
+                <blockquote></blockquote>
+                <input type="text" name="order2" id="reservation-order2"  placeholder="Pedido 2">
+                <input type="number" name="amount2" id="order-amount2" placeholder="Cantidad"> -->
+
+                <div id="productAccordion" class="accordion" style="display: none;">
+                    <!-- Los productos se agregarán aquí dinámicamente -->
+                </div>
+
+                <blockquote></blockquote>
+                <button type="submit">Reservar</button>
+            </form>
+
+        </div>
+    </div>
+
+    
     
 
     <button id="btn-logout">Salir</button>

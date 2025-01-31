@@ -121,7 +121,6 @@ function validateReservation(reservations, tableId, date, startTime, endTime) {
   let start = new Date(`${date}T${startTime}`);
   let end = new Date(`${date}T${endTime}`);
 
-  console.log("Entra");
   if (date < today || start >= end || start <= now) {
     return false;
   }
