@@ -1,5 +1,5 @@
 import { auth } from "./firebaseInit.js";
-import { getUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, logout } from "./app.js";
+import { getUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, getLocalDateString, logout } from "./app.js";
 import { protectRoute } from "./routes.js";
 
 // Rutas
@@ -8,7 +8,6 @@ protectRoute();
 // Constantes
 const [uid, currentUser] = await getCurrentUserData();
 const tablesDiv = document.getElementById("tables");
-const tablesForm = document.getElementById("reservation-table");
 welcome();
 let tables = await getAllTables();
 let reservations = await getAllReservations();
@@ -16,7 +15,7 @@ let reservations = await getAllReservations();
 showUserReservations(reservations);
 setActualDate();
 generateTablesOptions();
-let eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
+let eventsCalendar = hoursToEvents(availabilityHours(reservations, getTableButtonChecked(".tableBtnOption")));
 let isFetching = false; 
 let calendar = createCalendar();
 chargeProducts();
@@ -31,7 +30,7 @@ setInterval(async () => {
 
     try {
         reservations = await getAllReservations();
-        eventsCalendar = hoursToEvents(availabilityHours(reservations, getTableButtonChecked()));
+        eventsCalendar = hoursToEvents(availabilityHours(reservations, getTableButtonChecked(".tableBtnOption")));
         updateCalendarEvents(eventsCalendar);
         showUserReservations(reservations);
     } catch (error) {
@@ -44,8 +43,6 @@ setInterval(async () => {
 
 document.querySelectorAll(".tableBtnOption").forEach(button => {
     button.addEventListener("click", () => {
-        // console.log(button);
-        console.log(button.getAttribute('value'), tablesForm.value);
         eventsCalendar = hoursToEvents(availabilityHours(reservations, button.getAttribute('value')));
         updateCalendarEvents(eventsCalendar);
     });
@@ -62,6 +59,12 @@ document.querySelectorAll(".tableBtnOption").forEach(button => {
 //     alertBox.classList.add('fade');
 //     alertBox.classList.remove('show');
 //   }, 3000);
+
+document.getElementById("closeModal").addEventListener("click", function() {
+    document.getElementById("reservation-addOrder").checked = false;
+    resetQuantitys();
+    showProducts();
+});
 
 document.getElementById('submit-reservation').addEventListener('click', function(event) {
     event.preventDefault();
@@ -171,14 +174,6 @@ function showUserReservations(reservations) {
 }
 
 // Formulario
-function getLocalDateString(date) {
-    let year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth() es 0-indexado
-    let day = date.getDate().toString().padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-}
-
 function setActualDate () {
     const dateInput = document.getElementById("reservation-date");
     const now = new Date();
@@ -251,19 +246,21 @@ function setSelectHours (dateInput, now, today) {
 
 function generateTablesOptions() {
     let tableButtonsDiv = document.getElementById("tableButtons");
+    let formTableBtn = document.getElementById("formTableBtn");
     let count = 1;
     let checked = "checked";
 
     for (const [id, table] of Object.entries(tables)) {
-        let newTableOption = document.createElement("option");
-        newTableOption.value = id,
-        newTableOption.text = table.nameTable;
-        tablesForm.add(newTableOption);
-
         let newTableButton = `<input type="radio" class="btn-check tableBtnOption" name="btnradio" id="btnradio${count}" autocomplete="off" ${checked} value=${id}>
-                            <label class="btn btn-outline-primary" for="btnradio${count}">Mesa ${count}</label>`
+                            <label class="btn btn-outline-primary" for="btnradio${count}">Mesa ${count}</label>`;
 
         tableButtonsDiv.innerHTML += newTableButton;
+
+        let newFormTableBtn =  `<input type="radio" class="btn-check tableFormOpt" name="optTable" id="optTable${count}" autocomplete="off" ${checked} value=${id}>
+                            <label class="btn btn-outline-secondary" for="optTable${count}">Mesa ${count}</label>`;
+
+        formTableBtn.innerHTML += newFormTableBtn;
+
         checked = "";
         count++;
     }
@@ -293,8 +290,8 @@ function hoursToEvents(hoursOcuped) {
     }));
 }
 
-function getTableButtonChecked() {
-    for (let button of document.querySelectorAll(".tableBtnOption")) {
+function getTableButtonChecked(className) {
+    for (let button of document.querySelectorAll(className)) {
         if (button.checked) {
             return button.getAttribute('value');  // Retorna directamente el ID
         }
@@ -362,11 +359,11 @@ function chargeProducts() {
         item.classList.add("item-product");
         item.setAttribute("name", product.name);
 
-        item.innerHTML = `<span class="product-name">${product.name}</span>
-                        <span class="product-price">$${product.price}</span>
-                        <button type="button" class="quantity-btn" data-action="minus">-</button>
+        item.innerHTML = `<div><span class="product-name">${product.name}</span>
+                        <span class="product-price">$${product.price}</span></div>
+                        <div><button type="button" class="quantity-btn btn btn-danger btn-sm" data-action="minus">-</button>
                         <span class="quantity">0</span>
-                        <button type="button" class="quantity-btn" data-action="plus">+</button>`
+                        <button type="button" class="quantity-btn btn btn-success btn-sm" data-action="plus">+</button><div>`
 
         accordion.appendChild(item);
     });
@@ -395,7 +392,7 @@ function resetQuantitys() {
 };
 
 function processOrder () {
-    let table = document.getElementById('reservation-table').value;
+    let table = getTableButtonChecked(".tableFormOpt");
     let date = document.getElementById('reservation-date').value;
     let startTime = document.getElementById('reservation-startTime').value;
     let endTime = document.getElementById('reservation-endTime').value;

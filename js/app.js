@@ -116,12 +116,13 @@ function validateReservation(reservations, tableId, date, startTime, endTime) {
   if (!reservations) return true;
 
   let now = new Date();
-  let today = now.toISOString().split("T")[0];
+  let today = getLocalDateString(now);
 
   let start = new Date(`${date}T${startTime}`);
   let end = new Date(`${date}T${endTime}`);
 
   if (date < today || start >= end || start <= now) {
+    console.log("TODAY");
     return false;
   }
 
@@ -133,7 +134,7 @@ function validateReservation(reservations, tableId, date, startTime, endTime) {
 
     if ((start >= existingStart && start < existingEnd) || (end > existingStart && end <= existingEnd) ||
         (start <= existingStart && end >= existingEnd)) {
-        
+          console.log("HORA");
         return false;
     }
   }
@@ -154,5 +155,13 @@ function logout(auth) {
   });
 }
 
+function getLocalDateString(date) {
+  let year = date.getFullYear();
+  let month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth() es 0-indexado
+  let day = date.getDate().toString().padStart(2, "0");
 
-export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, getUser, validateReservation, logout };
+  return `${year}-${month}-${day}`;
+}
+
+
+export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, getUser, validateReservation, getLocalDateString, logout };

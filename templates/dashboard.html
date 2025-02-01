@@ -28,21 +28,9 @@
                 <div class="btn-group" role="group" aria-label="Basic radio toggle button group" id="tableButtons">
                     <!-- <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="btnradio1">Mesa 1</label>
-                
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btnradio2">Mesa 2</label>
-                
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btnradio3">Mesa 3</label>
-                    
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btnradio4">Mesa 4</label>
-
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio5" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btnradio5">Mesa 5</label> -->
+                 -->
                 </div>
 
-                <!-- <button id="openModalBtn" class="btn btn-primary mt-5">Hacer reservación</button> -->
                 <button class="btn btn-primary mt-5" data-bs-toggle="modal" data-bs-target="#reservationModal">Reservar ya!</button>
             </div>
 
@@ -54,27 +42,33 @@
     
 
     <div id="reservations" class="container-md card card-relieve">
-        <h3>Tus Reservaciones</h3>
+        <h3 class="fs-3">Tus Reservaciones</h3>
+
     </div>
 
-   <!-- Button trigger modal -->
+
    
    <div class="modal fade" id="reservationModal">
        <div class="modal-dialog">
            <div class="modal-content">
                <div class="modal-header">
                    <h5 class="modal-title">Hacer Reservacion</h5>
-                   <button class="btn-close" data-bs-dismiss="modal"></button>
+                   <button class="btn-close" id="closeModal" data-bs-dismiss="modal"></button>
                </div>
 
-               <div class="modal-body">
-                    <form method="post" id="form-reservation">
-                        <select id="reservation-table"></select>
-                        <input id="reservation-date" type="date" min="" default="" placeholder="Fecha" required>
-        
-                        <select id="reservation-startTime"></select>
-        
-                        <select id="reservation-endTime"></select>
+               <div class="modal-body d-flex flex-column justify-content-center">
+                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group" id="formTableBtn"></div>
+                        
+                        <div class="container d-flex align-items-center justify-content-around">
+                            <label for="date">Fecha</label>
+                            <input id="reservation-date" name="date" min="" default="" placeholder="Fecha" required>
+                        </div>
+                        
+                        <div class="container d-flex align-items-center justify-content-around">
+                            <select id="reservation-startTime"></select>
+                            <select id="reservation-endTime"></select>
+                        </div>
+                        
         
                         <p>Pedido</p>
                         <label>Añadir Orden?</label>
@@ -85,11 +79,10 @@
                         <div id="productAccordion" class="accordion" style="display: none;"></div>
         
                         <blockquote></blockquote>
-                        <!-- <button type="submit">Reservar</button> -->
-                    </form>
+                        
                </div>
                <div class="modal-footer">
-                   <button class="btn btn-danger" data-bs-dismiss="modal">Salir</button>
+                   <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
                    <button class="btn btn-primary" type="submit" id="submit-reservation" data-bs-dismiss="modal">Enviar</button>
                </div>
            </div>
