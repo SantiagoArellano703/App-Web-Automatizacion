@@ -1,4 +1,28 @@
-.modal {
+body {
+    background-color: #eee5b6;
+}
+
+.card-relieve {
+    padding: 10px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.alert-top {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1050; /* Asegura que el alert esté encima de otros elementos */
+}
+
+#calendar {
+    max-width: 100%;  /* Asegura que no se desborde horizontalmente */
+    height: 500px;    /* Controla la altura del calendario */
+    overflow: hidden; /* Oculta cualquier desbordamiento */
+}
+
+/* .modal {
     display: none; 
     position: fixed; 
     z-index: 1; 
@@ -19,4 +43,4 @@
     border: 1px solid #888;
     width: 80%;
     max-width: 400px;
-}
+} */

@@ -12,7 +12,7 @@ const tablesForm = document.getElementById("reservation-table");
 welcome();
 let tables = await getAllTables();
 let reservations = await getAllReservations();
-showTables(tables);
+// showTables(tables);
 showUserReservations(reservations);
 setActualDate();
 generateTablesOptions();
@@ -31,7 +31,7 @@ setInterval(async () => {
 
     try {
         reservations = await getAllReservations();
-        eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
+        eventsCalendar = hoursToEvents(availabilityHours(reservations, getTableButtonChecked()));
         updateCalendarEvents(eventsCalendar);
         showUserReservations(reservations);
     } catch (error) {
@@ -39,28 +39,44 @@ setInterval(async () => {
     } finally {
         isFetching = false; // Libera el bloqueo después de completar la ejecución
     }
-}, 5000);
+}, 3000);
 
-// Abrir el modal
-document.getElementById("openModalBtn").addEventListener("click", function() {
-    document.getElementById("reservationModal").style.display = "block";
+
+document.querySelectorAll(".tableBtnOption").forEach(button => {
+    button.addEventListener("click", () => {
+        // console.log(button);
+        console.log(button.getAttribute('value'), tablesForm.value);
+        eventsCalendar = hoursToEvents(availabilityHours(reservations, button.getAttribute('value')));
+        updateCalendarEvents(eventsCalendar);
+    });
 });
 
-// Cerrar el modal
-document.getElementById("closeModalBtn").addEventListener("click", function() {
-    closeModal();
-});
+// document.querySelectorAll(".reservations-child").forEach(res => {
+//     res.addEventListener("click", () => {
+//         console.log("GHOLAAa");
+//     });
+// });
 
-tablesForm.addEventListener("change", function() {
-    eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
-    updateCalendarEvents(eventsCalendar);
-});
+// setTimeout(function() {
+//     let alertBox = document.getElementById('alert-box');
+//     alertBox.classList.add('fade');
+//     alertBox.classList.remove('show');
+//   }, 3000);
 
-document.getElementById('form-reservation').addEventListener('submit', function(event) {
+document.getElementById('submit-reservation').addEventListener('click', function(event) {
     event.preventDefault();
-    processOrder();
-    closeModal();
+    let [orderSaved, message] = processOrder();
+    let alertType = orderSaved ? "success" : "danger";
+    resetQuantitys();
     showUserReservations(reservations);
+
+    createAlert(alertType, message);
+    setTimeout(function() {
+        let alertBox = document.getElementById('alert-box');
+        alertBox.classList.add('fade');
+        alertBox.classList.remove('show');
+        alertBox.remove();
+    }, 3000);
 });
 
 document.getElementById("reservation-addOrder").addEventListener("change", () => {
@@ -76,6 +92,14 @@ document.getElementById("btn-logout").addEventListener("click", function() { log
 /*-----------------------------------*\
   FUNCIONES
 \*-----------------------------------*/
+
+function createAlert(alertType, message) {
+    let alertDiv = document.createElement("div");
+    alertDiv.innerHTML = `<div class="alert alert-${alertType} alert-top" role="alert" id="alert-box">
+        ${message}
+    </div>`;
+    document.body.appendChild(alertDiv)
+}
 
 function welcome() {
     let welcome = document.getElementById("dashboard-welcome");
@@ -226,19 +250,30 @@ function setSelectHours (dateInput, now, today) {
 }
 
 function generateTablesOptions() {
+    let tableButtonsDiv = document.getElementById("tableButtons");
+    let count = 1;
+    let checked = "checked";
+
     for (const [id, table] of Object.entries(tables)) {
         let newTableOption = document.createElement("option");
         newTableOption.value = id,
         newTableOption.text = table.nameTable;
         tablesForm.add(newTableOption);
+
+        let newTableButton = `<input type="radio" class="btn-check tableBtnOption" name="btnradio" id="btnradio${count}" autocomplete="off" ${checked} value=${id}>
+                            <label class="btn btn-outline-primary" for="btnradio${count}">Mesa ${count}</label>`
+
+        tableButtonsDiv.innerHTML += newTableButton;
+        checked = "";
+        count++;
     }
 }
 
 function availabilityHours (reservations, tableId) {
     if (!reservations) return [];
+
     let reservationsForTable = Object.values(reservations).filter(res => res.tableId == tableId);
     let hoursOcuped = [];
-    let calendar = document.getElementById("calendar");
 
     for (let reservation of reservationsForTable) {
         hoursOcuped.push([reservation.date, reservation.startTime, reservation.endTime]);
@@ -251,11 +286,20 @@ function availabilityHours (reservations, tableId) {
 function hoursToEvents(hoursOcuped) {
     if (!hoursOcuped) return;
     return hoursOcuped.map(reservation => ({
-        title: "Reservado", 
+        title: "No disponible", 
         start: `${reservation[0]}T${reservation[1]}`,
         end: `${reservation[0]}T${reservation[2]}`, 
         color: "#cdcdcd"
     }));
+}
+
+function getTableButtonChecked() {
+    for (let button of document.querySelectorAll(".tableBtnOption")) {
+        if (button.checked) {
+            return button.getAttribute('value');  // Retorna directamente el ID
+        }
+    }
+    return null;  // Retorna null si ningún botón está seleccionado
 }
 
 function updateCalendarEvents(eventsCalendar) {
@@ -278,19 +322,16 @@ function createCalendar() {
             hour12: true,
             meridiem: "short"
         },
+        themeSystem: 'bootstrap4',
         allDaySlot: false,
-        events: eventsCalendar
+        events: eventsCalendar,
+        height: 'parent',  // Esto hace que se ajuste al contenedor
+        // contentHeight: 'auto', // Altura automática basada en el contenido
+        aspectRatio: 1.35
     });
     calendar.render();
 
     return calendar;
-}
-
-function closeModal() {
-    document.getElementById("reservationModal").style.display = "none";
-    document.getElementById('reservation-addOrder').checked = false;
-    showProducts();
-    resetQuantitys();
 }
 
 function showProducts() {
@@ -379,10 +420,13 @@ function processOrder () {
         }
 
         createReservation(uid, table, date, startTime, endTime, order);   
-        console.log("Reservacion realizada");   
+        console.log("Reservacion realizada"); 
+        return [true, "Reservacion realizada"];  
     } else {
         console.log("Ya existe una reservacion para esa fecha.");
     }
+
+    return [false, "Fecha inválida"]; 
 }
 
 
