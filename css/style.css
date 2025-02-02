@@ -316,6 +316,71 @@ header .navbar{
     color: var(--orange);
     transform: scale(1.40);
 }
+
+/* MENU SECTION */
+
+.menu-section {
+    min-height: 100vh;
+    background-color: var(--beige);
+    padding-top: 200px;
+}
+
+.menu-section .section-content{
+    margin: 0 auto;
+    padding: 0 20px;
+    max-width: var(--site-max-width);
+}
+
+.menu-section-title{
+    text-align: center;
+    font-size: var(--font-size-l);
+    font-family: "Krona One", sans-serif;
+    color: var(--blue);
+    display: block;
+    visibility: visible;
+} 
+
+.menu-section .menu-list{
+    padding: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 110px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.menu-section .menu-list .menu-item {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    justify-content: space-between;
+    width: calc(100% / 3 - 110px);
+}
+
+.menu-section .menu-list .menu-item .menu-image{
+    width: 150px; 
+    height: 150px; 
+    object-fit: cover; 
+    display: block;
+    margin: 0 auto;
+}
+
+.menu-section .menu-list .menu-item .name{
+    font-size: var(--font-size-m);
+    font-family: "Krona One", sans-serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: var(--font-weight-semibold);
+    color: var(--blue);
+}
+
+.menu-section .menu-list .menu-item .text{
+    line-height: 30px;
+    font-family: "Oxygen Mono Regular", sans-serif;
+    color: var(--dark-blue);
+    margin-bottom: 20px;
+    text-align: justify;
+}
 /* responsive */
 @media screen and (max-width: 900px){
     :root{
