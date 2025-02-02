@@ -43,7 +43,7 @@ async function getAllTables() {
   }
 
 // Crear una reservación
-const createReservation = async (userId, tableId, date, startTime, endTime) => {
+const createReservation = async (userId, tableId, date, startTime, endTime, order) => {
     const reservationsRef = ref(db, 'reservations');
     const newReservationRef = push(reservationsRef);
     console.log(reservationsRef);
@@ -53,6 +53,7 @@ const createReservation = async (userId, tableId, date, startTime, endTime) => {
         date,
         startTime,
         endTime,
+        order,
     });
     console.log('Reservación creada:', newReservationRef.key);
 };
@@ -95,20 +96,33 @@ async function getCurrentUserData() {
         }
       })
     })
-    
+}
+
+async function getUser(uid) {
+  return new Promise((resolve, reject) => {
+    let userRef = ref(db, "users/" + uid);
+
+    get(userRef).then((userData) => {
+        if (userData.exists()) {
+            resolve(userData.val());
+        } else {
+          reject("No se encontró el usuario");
+        }
+    });
+  });
 }
 
 function validateReservation(reservations, tableId, date, startTime, endTime) {
   if (!reservations) return true;
 
   let now = new Date();
-  let today = now.toISOString().split("T")[0];
+  let today = getLocalDateString(now);
 
   let start = new Date(`${date}T${startTime}`);
   let end = new Date(`${date}T${endTime}`);
 
-  console.log("Entra");
   if (date < today || start >= end || start <= now) {
+    console.log("TODAY");
     return false;
   }
 
@@ -120,7 +134,7 @@ function validateReservation(reservations, tableId, date, startTime, endTime) {
 
     if ((start >= existingStart && start < existingEnd) || (end > existingStart && end <= existingEnd) ||
         (start <= existingStart && end >= existingEnd)) {
-        
+          console.log("HORA");
         return false;
     }
   }
@@ -141,5 +155,13 @@ function logout(auth) {
   });
 }
 
+function getLocalDateString(date) {
+  let year = date.getFullYear();
+  let month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth() es 0-indexado
+  let day = date.getDate().toString().padStart(2, "0");
 
-export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, logout };
+  return `${year}-${month}-${day}`;
+}
+
+
+export { createUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, getUser, validateReservation, getLocalDateString, logout };

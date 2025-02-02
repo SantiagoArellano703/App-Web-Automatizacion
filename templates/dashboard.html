@@ -4,44 +4,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../css/dashboard.css">
     <title>App Web</title>
 </head>
 <body>
     <h1>Dashboard</h1>
-    <p id="dashboard-welcome">Bienvenido</p>
+    <p id="dashboard-welcome" class="fs-3 fst-italic">Bienvenido</p>
 
-    <div id="tables">
+    <!-- <div id="tables">
         <h3>Mesas</h3>
 
+    </div> -->
+
+    <div class="container-md card card-relieve">
+        <div class="row align-items-center justify-content-around">
+            <div class="col-lg-5 d-flex flex-column align-items-center order-1 order-lg-1">
+                <div>
+                    <p>Selecciona la mesa de la cual quieres ver la disponibilidad</p>
+                </div>
+
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group" id="tableButtons">
+                    <!-- <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="btnradio1">Mesa 1</label>
+                 -->
+                </div>
+
+                <button class="btn btn-primary mt-5" data-bs-toggle="modal" data-bs-target="#reservationModal">Reservar ya!</button>
+            </div>
+
+            <div class="col-lg-7 order-0 order-lg-1">
+                <div id="calendar"></div>
+            </div>
+        </div>
     </div>
-
-    <div id="reservations">
-        <h3>Reservaciones</h3>
-
-    </div>
-
-    <div id="calendar" style="width: 650px;">
-        <!-- <h3>Horas ocupadas: </h3> -->
-    </div>
-
-    <h3>Hacer Reservacion</h3>
-    <form method="post" id="form-reservation">
-        <select id="reservation-table">
-            <!-- <option value="javascript">Mesa 1</option>
-            <option value="php">Mesa 2</option>
-            <option value="java">Mesa 3</option>
-            <option value="golang">Mesa 4</option>
-            <option value="python">Mesa 5</option> -->
-        </select>
-        <input id="reservation-date" type="date" min="" default="" placeholder="Fecha" required>
-
-        <select id="reservation-startTime"></select>
-
-        <select id="reservation-endTime"></select>
-
-        <button>Reservar</button>
-    </form>
     
+
+    <div id="reservations" class="container-md card card-relieve">
+        <h3 class="fs-3">Tus Reservaciones</h3>
+
+    </div>
+
+
+   
+   <div class="modal fade" id="reservationModal">
+       <div class="modal-dialog">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title">Hacer Reservacion</h5>
+                   <button class="btn-close" id="closeModal" data-bs-dismiss="modal"></button>
+               </div>
+
+               <div class="modal-body d-flex flex-column justify-content-center">
+                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group" id="formTableBtn"></div>
+                        
+                        <div class="container d-flex align-items-center justify-content-around">
+                            <label for="date">Fecha</label>
+                            <input id="reservation-date" name="date" min="" default="" placeholder="Fecha" required>
+                        </div>
+                        
+                        <div class="container d-flex align-items-center justify-content-around">
+                            <select id="reservation-startTime"></select>
+                            <select id="reservation-endTime"></select>
+                        </div>
+                        
+        
+                        <p>Pedido</p>
+                        <label>Añadir Orden?</label>
+                        <input type="checkbox" id="reservation-addOrder">
+        
+                        <blockquote></blockquote>
+                        
+                        <div id="productAccordion" class="accordion" style="display: none;"></div>
+        
+                        <blockquote></blockquote>
+                        
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                   <button class="btn btn-primary" type="submit" id="submit-reservation" data-bs-dismiss="modal">Enviar</button>
+               </div>
+           </div>
+       </div>
+   </div>
+
+    <!-- <div class="modal" id="reservationModal">
+        <div class="modal-content">
+            <span id="closeModalBtn" class="close-btn" style="cursor: pointer">&times;</span>
+
+            <h3>Hacer Reservacion</h3>
+            <form method="post" id="form-reservation">
+                <select id="reservation-table"></select>
+                <input id="reservation-date" type="date" min="" default="" placeholder="Fecha" required>
+
+                <select id="reservation-startTime"></select>
+
+                <select id="reservation-endTime"></select>
+
+                <p>Pedido</p>
+                <label>Añadir Orden?</label>
+                <input type="checkbox" id="reservation-addOrder">
+
+                <blockquote></blockquote>
+
+                <div id="productAccordion" class="accordion" style="display: none;">
+                    
+                </div>
+
+                <blockquote></blockquote>
+                <button type="submit">Reservar</button>
+            </form>
+
+        </div>
+    </div> -->
+    
+    <!-- <div class="alert alert-danger alert-top" role="alert" id="alert-box">
+        A simple danger alert—check it out!
+    </div> -->
 
     <button id="btn-logout">Salir</button>
 

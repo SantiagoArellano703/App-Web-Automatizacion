@@ -1,0 +1,62 @@
+body {
+    background-color: #eee5b6;
+}
+
+.card-relieve {
+    padding: 10px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.alert-top {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1050; /* Asegura que el alert esté encima de otros elementos */
+}
+
+#calendar {
+    max-width: 100%;  /* Asegura que no se desborde horizontalmente */
+    height: 500px;    /* Controla la altura del calendario */
+    overflow: hidden; /* Oculta cualquier desbordamiento */
+}
+
+.item-product {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd; /* Línea divisoria opcional */
+    padding: 10px;
+    /* margin: 10px 0px 10px 0; */
+}
+
+.quantity-btn {
+    height: 20px;
+    width: 20px;
+    padding: 0;
+    text-align: center;
+}
+
+/* .modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4); 
+    padding-top: 60px;
+    z-index: 1;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+} */

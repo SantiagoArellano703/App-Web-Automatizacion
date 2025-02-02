@@ -13,7 +13,7 @@ function protectRoute() {
                     window.location.href = "dashboard.html";
                 } else if (dataUser.rol == "admin") {
                     window.location.href = "admin.html";
-                } 
+                }
             });
         }
     }); 

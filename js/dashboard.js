@@ -1,5 +1,5 @@
 import { auth } from "./firebaseInit.js";
-import { createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, logout } from "./app.js";
+import { getUser, createTable, createReservation, getAllReservations, getAllTables, getCurrentUserData, validateReservation, getLocalDateString, logout } from "./app.js";
 import { protectRoute } from "./routes.js";
 
 // Rutas
@@ -8,17 +8,17 @@ protectRoute();
 // Constantes
 const [uid, currentUser] = await getCurrentUserData();
 const tablesDiv = document.getElementById("tables");
-const tablesForm = document.getElementById("reservation-table");
 welcome();
 let tables = await getAllTables();
 let reservations = await getAllReservations();
-showTables(tables);
+// showTables(tables);
 showUserReservations(reservations);
 setActualDate();
 generateTablesOptions();
-let eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
+let eventsCalendar = hoursToEvents(availabilityHours(reservations, getTableButtonChecked(".tableBtnOption")));
 let isFetching = false; 
 let calendar = createCalendar();
+chargeProducts();
 
 /*-----------------------------------*\
   EVENTOS
@@ -30,38 +30,64 @@ setInterval(async () => {
 
     try {
         reservations = await getAllReservations();
-        eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
+        eventsCalendar = hoursToEvents(availabilityHours(reservations, getTableButtonChecked(".tableBtnOption")));
         updateCalendarEvents(eventsCalendar);
+        showUserReservations(reservations);
     } catch (error) {
         console.error("Error al obtener reservas:", error);
     } finally {
         isFetching = false; // Libera el bloqueo después de completar la ejecución
     }
-}, 5000);
+}, 3000);
 
-tablesForm.addEventListener("change", function() {
-    eventsCalendar = hoursToEvents(availabilityHours(reservations, tablesForm.value));
-    updateCalendarEvents(eventsCalendar);
+
+document.querySelectorAll(".tableBtnOption").forEach(button => {
+    button.addEventListener("click", () => {
+        eventsCalendar = hoursToEvents(availabilityHours(reservations, button.getAttribute('value')));
+        updateCalendarEvents(eventsCalendar);
+    });
 });
 
-document.getElementById('form-reservation').addEventListener('submit', function(event) {
+// document.querySelectorAll(".reservations-child").forEach(res => {
+//     res.addEventListener("click", () => {
+//         console.log("GHOLAAa");
+//     });
+// });
+
+// setTimeout(function() {
+//     let alertBox = document.getElementById('alert-box');
+//     alertBox.classList.add('fade');
+//     alertBox.classList.remove('show');
+//   }, 3000);
+
+document.getElementById("closeModal").addEventListener("click", function() {
+    document.getElementById("reservation-addOrder").checked = false;
+    resetQuantitys();
+    showProducts();
+});
+
+document.getElementById('submit-reservation').addEventListener('click', function(event) {
     event.preventDefault();
+    let [orderSaved, message] = processOrder();
+    let alertType = orderSaved ? "success" : "danger";
+    resetQuantitys();
+    showUserReservations(reservations);
 
-    let table = document.getElementById('reservation-table').value;
-    let date = document.getElementById('reservation-date').value;
-    let startTime = document.getElementById('reservation-startTime').value;
-    let endTime = document.getElementById('reservation-endTime').value;
+    createAlert(alertType, message);
+    setTimeout(function() {
+        let alertBox = document.getElementById('alert-box');
+        alertBox.classList.add('fade');
+        alertBox.classList.remove('show');
+        alertBox.remove();
+    }, 3000);
+});
 
-    let isValid = validateReservation(reservations, table, date, startTime, endTime);
-    
-    if( isValid ) {
-        createReservation(uid, table, date, startTime, endTime);   
-        console.log("Reservacion realizada");   
-    } else {
-        console.log("Ya existe una reservacion para esa fecha.");
-    }
- 
-    showUserReservations();
+document.getElementById("reservation-addOrder").addEventListener("change", () => {
+    showProducts();
+});
+
+document.querySelectorAll(".quantity-btn").forEach(button => {
+    button.addEventListener("click", () => addProducts(button));
 });
 
 document.getElementById("btn-logout").addEventListener("click", function() { logout(auth); });
@@ -69,6 +95,14 @@ document.getElementById("btn-logout").addEventListener("click", function() { log
 /*-----------------------------------*\
   FUNCIONES
 \*-----------------------------------*/
+
+function createAlert(alertType, message) {
+    let alertDiv = document.createElement("div");
+    alertDiv.innerHTML = `<div class="alert alert-${alertType} alert-top" role="alert" id="alert-box">
+        ${message}
+    </div>`;
+    document.body.appendChild(alertDiv)
+}
 
 function welcome() {
     let welcome = document.getElementById("dashboard-welcome");
@@ -125,19 +159,21 @@ function showUserReservations(reservations) {
                                                 Fecha: ${reservation.date}, Hora: ${reservation.startTime}, Fin: ${reservation.endTime}`;
             reservationsDiv.appendChild(newReservationsDiv);
             newReservationsDiv.classList.add("reservations-child");
+
+            // Order
+            if (reservation.order) {
+                for (let order of reservation.order){
+                    let orderDiv = document.createElement("p");
+                    orderDiv.textContent = `- Producto: ${order.product}, Cantidad: ${order.amount}`;
+                    reservationsDiv.appendChild(orderDiv);
+                    orderDiv.classList.add("reservations-child");
+                }
+            } 
         }
     }
 }
 
 // Formulario
-function getLocalDateString(date) {
-    let year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth() es 0-indexado
-    let day = date.getDate().toString().padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-}
-
 function setActualDate () {
     const dateInput = document.getElementById("reservation-date");
     const now = new Date();
@@ -209,19 +245,32 @@ function setSelectHours (dateInput, now, today) {
 }
 
 function generateTablesOptions() {
+    let tableButtonsDiv = document.getElementById("tableButtons");
+    let formTableBtn = document.getElementById("formTableBtn");
+    let count = 1;
+    let checked = "checked";
+
     for (const [id, table] of Object.entries(tables)) {
-        let newTableOption = document.createElement("option");
-        newTableOption.value = id,
-        newTableOption.text = table.nameTable;
-        tablesForm.add(newTableOption);
+        let newTableButton = `<input type="radio" class="btn-check tableBtnOption" name="btnradio" id="btnradio${count}" autocomplete="off" ${checked} value=${id}>
+                            <label class="btn btn-outline-primary" for="btnradio${count}">Mesa ${count}</label>`;
+
+        tableButtonsDiv.innerHTML += newTableButton;
+
+        let newFormTableBtn =  `<input type="radio" class="btn-check tableFormOpt" name="optTable" id="optTable${count}" autocomplete="off" ${checked} value=${id}>
+                            <label class="btn btn-outline-secondary" for="optTable${count}">Mesa ${count}</label>`;
+
+        formTableBtn.innerHTML += newFormTableBtn;
+
+        checked = "";
+        count++;
     }
 }
 
 function availabilityHours (reservations, tableId) {
     if (!reservations) return [];
+
     let reservationsForTable = Object.values(reservations).filter(res => res.tableId == tableId);
     let hoursOcuped = [];
-    let calendar = document.getElementById("calendar");
 
     for (let reservation of reservationsForTable) {
         hoursOcuped.push([reservation.date, reservation.startTime, reservation.endTime]);
@@ -234,11 +283,20 @@ function availabilityHours (reservations, tableId) {
 function hoursToEvents(hoursOcuped) {
     if (!hoursOcuped) return;
     return hoursOcuped.map(reservation => ({
-        title: "Reservado", 
+        title: "No disponible", 
         start: `${reservation[0]}T${reservation[1]}`,
         end: `${reservation[0]}T${reservation[2]}`, 
         color: "#cdcdcd"
     }));
+}
+
+function getTableButtonChecked(className) {
+    for (let button of document.querySelectorAll(className)) {
+        if (button.checked) {
+            return button.getAttribute('value');  // Retorna directamente el ID
+        }
+    }
+    return null;  // Retorna null si ningún botón está seleccionado
 }
 
 function updateCalendarEvents(eventsCalendar) {
@@ -261,13 +319,113 @@ function createCalendar() {
             hour12: true,
             meridiem: "short"
         },
-
-        events: eventsCalendar
+        themeSystem: 'bootstrap4',
+        allDaySlot: false,
+        events: eventsCalendar,
+        height: 'parent',  // Esto hace que se ajuste al contenedor
+        // contentHeight: 'auto', // Altura automática basada en el contenido
+        aspectRatio: 1.35
     });
     calendar.render();
 
     return calendar;
 }
+
+function showProducts() {
+    let productList = document.getElementById("productAccordion");
+    let addOrder = document.getElementById("reservation-addOrder");
+    if (addOrder.checked) {
+        productList.style.display = "block"; 
+    } else {
+        productList.style.display = "none";
+    }
+}
+
+function chargeProducts() {
+    let products = [
+        {name: "Yonaguni Roll", price: "7"},
+        {name: "Kanagami Roll", price: "7"},
+        {name: "Fiji Roll", price: "7"},
+        {name: "Asuma Roll", price: "7"},
+        {name: "Kakashi Roll", price: "7"},
+        {name: "Naruto Roll", price: "7"},
+        {name: "Coca-Cola", price: "2"}
+    ];
+
+    let accordion = document.getElementById("productAccordion");
+
+    products.forEach(product => {
+        let item = document.createElement("div");
+        item.classList.add("item-product");
+        item.setAttribute("name", product.name);
+
+        item.innerHTML = `<div><span class="product-name">${product.name}</span>
+                        <span class="product-price">$${product.price}</span></div>
+                        <div><button type="button" class="quantity-btn btn btn-danger btn-sm" data-action="minus">-</button>
+                        <span class="quantity">0</span>
+                        <button type="button" class="quantity-btn btn btn-success btn-sm" data-action="plus">+</button><div>`
+
+        accordion.appendChild(item);
+    });
+}
+
+function addProducts(button) {
+    let quantitySpan = button.parentElement.querySelector(".quantity");
+    let quantity = parseInt(quantitySpan.textContent);
+
+    // Controlar la cantidad basada en el botón presionado
+    if (button.dataset.action === "plus") {
+        quantity++;
+    } else if (button.dataset.action === "minus" && quantity > 0) {
+        quantity--;
+    }
+
+    // Actualizar la cantidad
+    quantitySpan.textContent = quantity;
+};
+
+function resetQuantitys() {
+    document.querySelectorAll(".quantity-btn").forEach(button => {
+        let quantitySpan = button.parentElement.querySelector(".quantity");
+        quantitySpan.textContent = 0;
+    });
+};
+
+function processOrder () {
+    let table = getTableButtonChecked(".tableFormOpt");
+    let date = document.getElementById('reservation-date').value;
+    let startTime = document.getElementById('reservation-startTime').value;
+    let endTime = document.getElementById('reservation-endTime').value;
+
+    //Orden
+    let addOrder = document.getElementById('reservation-addOrder').checked;
+    let order = [];
+
+    let isValid = validateReservation(reservations, table, date, startTime, endTime);
+    
+    if( isValid ) {
+        if ( addOrder ) {
+            let products = document.getElementsByClassName("item-product");
+
+            for (let i = 0; i < products.length; i++){
+                let quantity = parseInt(products[i].querySelector(".quantity").textContent);
+
+                if (quantity > 0) {
+                    order.push({product: products[i].getAttribute('name'), amount: quantity})
+                }
+            }   
+        }
+
+        createReservation(uid, table, date, startTime, endTime, order);   
+        console.log("Reservacion realizada"); 
+        return [true, "Reservacion realizada"];  
+    } else {
+        console.log("Ya existe una reservacion para esa fecha.");
+    }
+
+    return [false, "Fecha inválida"]; 
+}
+
 
 // createTable("Mesa 1", 2);
 // createTable("Mesa 2" ,4);
@@ -276,3 +434,5 @@ function createCalendar() {
 // createTable("Mesa 5", 4);
 
 // createReservation('user123', 'table1', '2025-01-16', '19:00');
+// let order = [{product: "Pizza Margarita", amount: 1}, {product: "Coca-Cola", amount: 2}]
+// createReservation('user123', 'table1', '2025-01-31', '19:00', "21:00", order);
